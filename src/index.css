@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: theme(fontFamily.sans);
+    background: theme(colors.patriot.bgSoft);
+    color: theme(colors.patriot.text);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: rgba(96, 148, 225, 0.28);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+@layer components {
+  .page-shell {
+    @apply relative min-h-dvh overflow-x-hidden;
+    background: linear-gradient(
+      180deg,
+      theme(colors.patriot.bgSoft) 0%,
+      theme(colors.patriot.bg) 52%,
+      theme(colors.patriot.bgWarm) 110%
+    );
+    background-image: theme(backgroundImage.heroRays);
+  }
+}
