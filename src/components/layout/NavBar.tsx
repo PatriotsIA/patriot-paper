@@ -5,6 +5,7 @@ import { ArrowRight, Menu, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { BrandLockup } from '../brand/Brand'
 import { LinkButton } from '../ui/LinkButton'
+import { CONTACT_EMAIL } from '../../config/contact'
 
 type NavItem = { to: string; label: string }
 
@@ -47,8 +48,8 @@ export function NavBar() {
             Join the Patriots in Action community
           </a>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <a className="hover:underline" href="mailto:info@patriotsinaction.com">
-              info@patriotsinaction.com
+            <a className="hover:underline" href={`mailto:${CONTACT_EMAIL}`}>
+              {CONTACT_EMAIL}
             </a>
             <a className="hover:underline" href="tel:+18667561776">
               866-756-1776

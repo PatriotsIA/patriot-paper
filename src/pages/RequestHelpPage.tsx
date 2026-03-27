@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { siteCopy } from '../content/siteCopy'
 import { Reveal } from '../components/motion/Reveal'
@@ -11,6 +12,8 @@ import { Input } from '../components/ui/Input'
 import { Textarea } from '../components/ui/Textarea'
 import { Select } from '../components/ui/Select'
 import { Button } from '../components/ui/Button'
+import { submitPlatformForm } from '../lib/platformApi'
+import { EnSpotSmsOptInLabel } from '../components/compliance/EnSpotSmsOptInLabel'
 
 type HelpForm = {
   name: string
@@ -20,6 +23,8 @@ type HelpForm = {
   state: string
   goal: string
   notes: string
+  agreePrivacyPolicy: boolean
+  smsConsent: boolean
 }
 
 export function RequestHelpPage() {
@@ -32,28 +37,50 @@ export function RequestHelpPage() {
       state: 'TX',
       goal: '',
       notes: '',
+      agreePrivacyPolicy: false,
+      smsConsent: false,
     }),
     [],
   )
   const [form, setForm] = useState<HelpForm>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof HelpForm, string>>>({})
+  const [submitting, setSubmitting] = useState(false)
 
   function validateEmail(email: string) {
     return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email.trim())
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const next: Partial<Record<keyof HelpForm, string>> = {}
     if (!form.name.trim()) next.name = 'Required'
     if (!form.email.trim()) next.email = 'Required'
     else if (!validateEmail(form.email)) next.email = 'Enter a valid email'
     if (!form.county.trim()) next.county = 'Required'
+    if (!form.agreePrivacyPolicy) next.agreePrivacyPolicy = 'Required'
+    if (form.phone.trim() && !form.smsConsent) next.smsConsent = 'Required when a phone number is provided'
     setErrors(next)
     if (Object.keys(next).length) return
 
-    toast.success('Request received. We’ll follow up soon.')
-    setForm(empty)
+    setSubmitting(true)
+    try {
+      await submitPlatformForm('request-help', {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        ...(form.phone.trim() ? { phone: form.phone.trim(), smsConsent: true } : {}),
+        county: form.county.trim(),
+        state: form.state.trim(),
+        ...(form.goal.trim() ? { goal: form.goal.trim() } : {}),
+        ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
+        agreePrivacyPolicy: true,
+      })
+      toast.success('Request received. Our team will get an email with your details and follow up soon.')
+      setForm(empty)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -154,12 +181,67 @@ export function RequestHelpPage() {
                 />
               </Field>
 
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs text-patriot-muted">
-                  Front-end only for now. Wire this to your backend when ready.
+              <div>
+                <label className="flex items-start gap-3 rounded-xl border border-patriot-border bg-patriot-bgSoft px-4 py-3 text-sm text-patriot-text">
+                  <input
+                    type="checkbox"
+                    checked={form.agreePrivacyPolicy}
+                    onChange={(e) => setForm((s) => ({ ...s, agreePrivacyPolicy: e.target.checked }))}
+                    className="mt-1 h-4 w-4 accent-patriot-blue"
+                  />
+                  <span>
+                    I have read and agree to the{' '}
+                    <Link
+                      className="font-semibold text-patriot-blue underline decoration-patriot-blue/30 underline-offset-2"
+                      to="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Privacy Policy
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                      className="font-semibold text-patriot-blue underline decoration-patriot-blue/30 underline-offset-2"
+                      to="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Terms &amp; Conditions
+                    </Link>
+                    .
+                  </span>
+                </label>
+                {errors.agreePrivacyPolicy ? (
+                  <div className="mt-2 text-xs font-semibold text-patriot-red">{errors.agreePrivacyPolicy}</div>
+                ) : null}
+              </div>
+
+              {form.phone.trim() ? (
+                <div>
+                  <label className="flex items-start gap-3 rounded-xl border border-patriot-border bg-patriot-bgSoft px-4 py-3 text-sm text-patriot-text">
+                    <input
+                      type="checkbox"
+                      checked={form.smsConsent}
+                      onChange={(e) => setForm((s) => ({ ...s, smsConsent: e.target.checked }))}
+                      className="mt-1 h-4 w-4 accent-patriot-blue"
+                    />
+                    <span>
+                      <EnSpotSmsOptInLabel
+                        organizationName="Patriots For Paper"
+                        purposePhrase="informational, action-related, and donation-related"
+                      />
+                    </span>
+                  </label>
+                  {errors.smsConsent ? (
+                    <div className="mt-2 text-xs font-semibold text-patriot-red">{errors.smsConsent}</div>
+                  ) : null}
                 </div>
-                <Button type="submit" variant="red">
-                  Submit request <ArrowRight className="h-4 w-4" />
+              ) : null}
+
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-xs text-patriot-muted">Submissions are sent securely to the Patriots Platform API.</div>
+                <Button type="submit" variant="red" disabled={submitting}>
+                  {submitting ? 'Sending…' : 'Submit request'} <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             </form>

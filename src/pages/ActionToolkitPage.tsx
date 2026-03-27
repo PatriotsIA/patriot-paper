@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
+import { Link } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, ClipboardList } from 'lucide-react'
 import { siteCopy } from '../content/siteCopy'
 import { Reveal } from '../components/motion/Reveal'
@@ -11,6 +12,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Button } from '../components/ui/Button'
 import { useHashScroll } from '../lib/useHashScroll'
+import { submitPlatformForm } from '../lib/platformApi'
 
 type PledgeForm = {
   county: string
@@ -18,33 +20,51 @@ type PledgeForm = {
   name: string
   email: string
   role: string
+  agreePrivacyPolicy: boolean
 }
 
 export function ActionToolkitPage() {
   useHashScroll()
 
   const empty = useMemo<PledgeForm>(
-    () => ({ county: '', state: 'TX', name: '', email: '', role: '' }),
+    () => ({ county: '', state: 'TX', name: '', email: '', role: '', agreePrivacyPolicy: false }),
     [],
   )
   const [form, setForm] = useState<PledgeForm>(empty)
   const [errors, setErrors] = useState<Partial<Record<keyof PledgeForm, string>>>({})
+  const [submitting, setSubmitting] = useState(false)
 
   function validateEmail(email: string) {
     return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email.trim())
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const next: Partial<Record<keyof PledgeForm, string>> = {}
     if (!form.name.trim()) next.name = 'Required'
     if (!form.email.trim()) next.email = 'Required'
     else if (!validateEmail(form.email)) next.email = 'Enter a valid email'
     if (!form.county.trim()) next.county = 'Required'
+    if (!form.agreePrivacyPolicy) next.agreePrivacyPolicy = 'Required'
     setErrors(next)
     if (Object.keys(next).length) return
-    toast.success('Thanks — you’re on the pledge list.')
-    setForm(empty)
+    setSubmitting(true)
+    try {
+      await submitPlatformForm('action-pledge', {
+        county: form.county.trim(),
+        state: form.state.trim(),
+        name: form.name.trim(),
+        email: form.email.trim(),
+        ...(form.role.trim() ? { role: form.role.trim() } : {}),
+        agreePrivacyPolicy: true,
+      })
+      toast.success('Thanks — you’re on the pledge list. Our team will receive your details by email.')
+      setForm(empty)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -160,12 +180,45 @@ export function ActionToolkitPage() {
                 </Field>
               </div>
 
+              <div>
+                <label className="flex items-start gap-3 rounded-xl border border-patriot-border bg-patriot-bgSoft px-4 py-3 text-sm text-patriot-text">
+                  <input
+                    type="checkbox"
+                    checked={form.agreePrivacyPolicy}
+                    onChange={(e) => setForm((s) => ({ ...s, agreePrivacyPolicy: e.target.checked }))}
+                    className="mt-1 h-4 w-4 accent-patriot-blue"
+                  />
+                  <span>
+                    I have read and agree to the{' '}
+                    <Link
+                      className="font-semibold text-patriot-blue underline decoration-patriot-blue/30 underline-offset-2"
+                      to="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Privacy Policy
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                      className="font-semibold text-patriot-blue underline decoration-patriot-blue/30 underline-offset-2"
+                      to="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Terms &amp; Conditions
+                    </Link>
+                    .
+                  </span>
+                </label>
+                {errors.agreePrivacyPolicy ? (
+                  <div className="mt-2 text-xs font-semibold text-patriot-red">{errors.agreePrivacyPolicy}</div>
+                ) : null}
+              </div>
+
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs text-patriot-muted">
-                  Front-end only for now. Hook this form to your backend when ready.
-                </div>
-                <Button type="submit" variant="primary">
-                  Join pledge <ArrowRight className="h-4 w-4" />
+                <div className="text-xs text-patriot-muted">Submissions are sent securely to the Patriots Platform API.</div>
+                <Button type="submit" variant="primary" disabled={submitting}>
+                  {submitting ? 'Sending…' : 'Join pledge'} <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
             </form>

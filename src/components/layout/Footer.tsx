@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { BrandMark } from '../brand/Brand'
 import { cn } from '../../lib/cn'
+import { CONTACT_EMAIL } from '../../config/contact'
 
 export function Footer() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -50,6 +51,12 @@ export function Footer() {
               <NavLink to="/about" className={linkClass}>
                 About & Support
               </NavLink>
+              <NavLink to="/privacy" className={linkClass}>
+                Privacy
+              </NavLink>
+              <NavLink to="/terms" className={linkClass}>
+                Terms
+              </NavLink>
             </div>
           </div>
 
@@ -58,8 +65,8 @@ export function Footer() {
               Contact
             </div>
             <div className="mt-3 grid gap-2 text-sm text-patriot-white/80">
-              <a className="hover:text-patriot-white" href="mailto:info@patriotsforpaper.org">
-                info@patriotsforpaper.org
+              <a className="hover:text-patriot-white" href={`mailto:${CONTACT_EMAIL}`}>
+                {CONTACT_EMAIL}
               </a>
               <a className="hover:text-patriot-white" href="https://patriotsinaction.com/" target="_blank" rel="noreferrer">
                 PatriotsInAction.com
