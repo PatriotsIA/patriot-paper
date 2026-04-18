@@ -12,7 +12,7 @@ import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Button } from '../components/ui/Button'
 import { useHashScroll } from '../lib/useHashScroll'
-import { submitPlatformForm } from '../lib/platformApi'
+import { sendEmailJsMessage } from '../lib/emailjs'
 
 type PledgeForm = {
   county: string
@@ -35,7 +35,7 @@ export function ActionToolkitPage() {
   const [submitting, setSubmitting] = useState(false)
 
   function validateEmail(email: string) {
-    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email.trim())
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -50,13 +50,36 @@ export function ActionToolkitPage() {
     if (Object.keys(next).length) return
     setSubmitting(true)
     try {
-      await submitPlatformForm('action-pledge', {
-        county: form.county.trim(),
-        state: form.state.trim(),
-        name: form.name.trim(),
-        email: form.email.trim(),
-        ...(form.role.trim() ? { role: form.role.trim() } : {}),
-        agreePrivacyPolicy: true,
+      const name = form.name.trim()
+      const email = form.email.trim()
+      const county = form.county.trim()
+      const state = form.state.trim()
+      const role = form.role.trim()
+      const message = [
+        'Action pledge submission',
+        `Name: ${name}`,
+        `Email: ${email}`,
+        `County: ${county}`,
+        `State: ${state}`,
+        role ? `Role: ${role}` : null,
+        `Agree privacy policy: Yes`,
+      ]
+        .filter((line): line is string => Boolean(line))
+        .join('\n')
+
+      await sendEmailJsMessage({
+        formType: 'action-pledge',
+        fields: {
+          subject: 'Action pledge',
+          message,
+          from_name: name,
+          from_email: email,
+          reply_to: email,
+          county,
+          state,
+          ...(role ? { role } : {}),
+          agree_privacy_policy: true,
+        },
       })
       toast.success('Thanks — you’re on the pledge list. Our team will receive your details by email.')
       setForm(empty)
@@ -216,7 +239,7 @@ export function ActionToolkitPage() {
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs text-patriot-muted">Submissions are sent securely to the Patriots Platform API.</div>
+                <div className="text-xs text-patriot-muted">Submissions are sent to our team by email.</div>
                 <Button type="submit" variant="primary" disabled={submitting}>
                   {submitting ? 'Sending…' : 'Join pledge'} <ArrowRight className="h-4 w-4" />
                 </Button>

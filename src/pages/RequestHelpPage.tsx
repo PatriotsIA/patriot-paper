@@ -12,7 +12,7 @@ import { Input } from '../components/ui/Input'
 import { Textarea } from '../components/ui/Textarea'
 import { Select } from '../components/ui/Select'
 import { Button } from '../components/ui/Button'
-import { submitPlatformForm } from '../lib/platformApi'
+import { sendEmailJsMessage } from '../lib/emailjs'
 import { EnSpotSmsOptInLabel } from '../components/compliance/EnSpotSmsOptInLabel'
 
 type HelpForm = {
@@ -47,7 +47,7 @@ export function RequestHelpPage() {
   const [submitting, setSubmitting] = useState(false)
 
   function validateEmail(email: string) {
-    return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email.trim())
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -64,15 +64,43 @@ export function RequestHelpPage() {
 
     setSubmitting(true)
     try {
-      await submitPlatformForm('request-help', {
-        name: form.name.trim(),
-        email: form.email.trim(),
-        ...(form.phone.trim() ? { phone: form.phone.trim(), smsConsent: true } : {}),
-        county: form.county.trim(),
-        state: form.state.trim(),
-        ...(form.goal.trim() ? { goal: form.goal.trim() } : {}),
-        ...(form.notes.trim() ? { notes: form.notes.trim() } : {}),
-        agreePrivacyPolicy: true,
+      const name = form.name.trim()
+      const email = form.email.trim()
+      const phone = form.phone.trim()
+      const county = form.county.trim()
+      const state = form.state.trim()
+      const goal = form.goal.trim()
+      const notes = form.notes.trim()
+      const message = [
+        'Request help submission',
+        `Name: ${name}`,
+        `Email: ${email}`,
+        phone ? `Phone: ${phone}` : null,
+        `County: ${county}`,
+        `State: ${state}`,
+        goal ? `Goal: ${goal}` : null,
+        notes ? `Notes: ${notes}` : null,
+        `Agree privacy policy: Yes`,
+        `SMS consent: ${phone ? 'Yes' : 'No'}`,
+      ]
+        .filter((line): line is string => Boolean(line))
+        .join('\n')
+
+      await sendEmailJsMessage({
+        formType: 'request-help',
+        fields: {
+          subject: 'Request help',
+          message,
+          from_name: name,
+          from_email: email,
+          reply_to: email,
+          ...(phone ? { phone, sms_consent: true } : { sms_consent: false }),
+          county,
+          state,
+          ...(goal ? { goal } : {}),
+          ...(notes ? { notes } : {}),
+          agree_privacy_policy: true,
+        },
       })
       toast.success('Request received. Our team will get an email with your details and follow up soon.')
       setForm(empty)
@@ -239,7 +267,7 @@ export function RequestHelpPage() {
               ) : null}
 
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="text-xs text-patriot-muted">Submissions are sent securely to the Patriots Platform API.</div>
+                <div className="text-xs text-patriot-muted">Submissions are sent to our team by email.</div>
                 <Button type="submit" variant="red" disabled={submitting}>
                   {submitting ? 'Sending…' : 'Submit request'} <ArrowRight className="h-4 w-4" />
                 </Button>
