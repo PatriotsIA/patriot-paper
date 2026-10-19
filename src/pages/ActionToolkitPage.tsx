@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, ClipboardList } from 'lucide-react'
@@ -13,9 +13,14 @@ import { Select } from '../components/ui/Select'
 import { Button } from '../components/ui/Button'
 import { useHashScroll } from '../lib/useHashScroll'
 import { sendEmailJsMessage } from '../lib/emailjs'
+import { countiesForState, countyById, states } from '../lib/geography'
+import { recordPledge } from '../lib/pledges'
+
+const PledgeMap = lazy(() => import('../components/pledges/PledgeMap'))
 
 type PledgeForm = {
   county: string
+  website: string
   state: string
   name: string
   email: string
@@ -27,7 +32,7 @@ export function ActionToolkitPage() {
   useHashScroll()
 
   const empty = useMemo<PledgeForm>(
-    () => ({ county: '', state: 'TX', name: '', email: '', role: '', agreePrivacyPolicy: false }),
+    () => ({ county: '', website: '', state: '', name: '', email: '', role: '', agreePrivacyPolicy: false }),
     [],
   )
   const [form, setForm] = useState<PledgeForm>(empty)
@@ -44,7 +49,8 @@ export function ActionToolkitPage() {
     if (!form.name.trim()) next.name = 'Required'
     if (!form.email.trim()) next.email = 'Required'
     else if (!validateEmail(form.email)) next.email = 'Enter a valid email'
-    if (!form.county.trim()) next.county = 'Required'
+    if (!states.some((state) => state.code === form.state)) next.state = 'Select your state'
+    if (countyById.get(form.county)?.state !== form.state) next.county = 'Select a county in your state'
     if (!form.agreePrivacyPolicy) next.agreePrivacyPolicy = 'Required'
     setErrors(next)
     if (Object.keys(next).length) return
@@ -52,7 +58,7 @@ export function ActionToolkitPage() {
     try {
       const name = form.name.trim()
       const email = form.email.trim()
-      const county = form.county.trim()
+      const county = countyById.get(form.county)!.name
       const state = form.state.trim()
       const role = form.role.trim()
       const message = [
@@ -67,6 +73,9 @@ export function ActionToolkitPage() {
         .filter((line): line is string => Boolean(line))
         .join('\n')
 
+      await recordPledge({ name, email, countyFips: form.county, state, role, agreePrivacyPolicy: form.agreePrivacyPolicy, website: form.website })
+      // Storage is authoritative. A notification outage must not lose a saved pledge.
+      let emailSent = true
       await sendEmailJsMessage({
         formType: 'action-pledge',
         fields: {
@@ -76,12 +85,13 @@ export function ActionToolkitPage() {
           from_email: email,
           reply_to: email,
           county,
+          county_fips: form.county,
           state,
           ...(role ? { role } : {}),
           agree_privacy_policy: true,
         },
-      })
-      toast.success('Thanks — you’re on the pledge list. Our team will receive your details by email.')
+      }).catch(() => { emailSent = false })
+      toast.success(emailSent ? 'Thanks — you’re on the pledge list. Our team will receive your details by email.' : 'Your pledge is recorded. The email notification is delayed.')
       setForm(empty)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Something went wrong.')
@@ -149,6 +159,9 @@ export function ActionToolkitPage() {
           <Card>
             <CardGlow />
             <form className="relative grid gap-5" onSubmit={onSubmit}>
+              <div className="pledge-honeypot" aria-hidden="true">
+                <label>Website<input tabIndex={-1} autoComplete="off" value={form.website} onChange={(event) => setForm((current) => ({ ...current, website: event.target.value }))} /></label>
+              </div>
               <p className="text-sm leading-relaxed text-patriot-text sm:text-base">
                 {siteCopy.action.pledge.body}
               </p>
@@ -169,23 +182,16 @@ export function ActionToolkitPage() {
                     placeholder="you@email.com"
                   />
                 </Field>
-                <Field label="County" hint="Required" error={errors.county}>
-                  <Input
-                    value={form.county}
-                    onChange={(e) => setForm((s) => ({ ...s, county: e.target.value }))}
-                    placeholder="e.g., Randall County"
-                  />
+                <Field label="State" hint="Required" error={errors.state}>
+                  <Select value={form.state} onChange={(e) => setForm((s) => ({ ...s, state: e.target.value, county: '' }))}>
+                    <option value="">Select your state</option>
+                    {states.map((state) => <option key={state.code} value={state.code}>{state.name}</option>)}
+                  </Select>
                 </Field>
-                <Field label="State">
-                  <Select
-                    value={form.state}
-                    onChange={(e) => setForm((s) => ({ ...s, state: e.target.value }))}
-                  >
-                    <option value="TX">Texas</option>
-                    <option value="OK">Oklahoma</option>
-                    <option value="NM">New Mexico</option>
-                    <option value="CO">Colorado</option>
-                    <option value="Other">Other</option>
+                <Field label="County" hint="Required" error={errors.county}>
+                  <Select disabled={!form.state} value={form.county} onChange={(e) => setForm((s) => ({ ...s, county: e.target.value }))} aria-invalid={Boolean(errors.county)}>
+                    <option value="">{form.state ? 'Select your county' : 'Select a state first'}</option>
+                    {countiesForState(form.state).map((county) => <option key={county.id} value={county.id}>{county.name}</option>)}
                   </Select>
                 </Field>
                 <Field label="How you want to help">
@@ -248,6 +254,7 @@ export function ActionToolkitPage() {
           </Card>
         </Reveal>
       </Section>
+      <Suspense fallback={<div className="map-section-loading">Loading pledge map…</div>}><PledgeMap /></Suspense>
     </div>
   )
 }

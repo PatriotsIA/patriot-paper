@@ -1,0 +1,11 @@
+{
+  "vintage": 2025,
+  "source": "U.S. Census Bureau, 2025 Cartographic Boundary Files, 1:20,000,000",
+  "urls": [
+    "https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_county_20m.zip",
+    "https://www2.census.gov/geo/tiger/GENZ2025/shp/cb_2025_us_state_20m.zip"
+  ],
+  "countyCount": 3222,
+  "stateCount": 52,
+  "catalogSha256": "cca34d22165b8a32c80a3a14c79804b6dc79c6283e41fbce14957569e49dac44"
+}

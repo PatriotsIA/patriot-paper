@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { ArrowRight, ClipboardCheck, ShieldCheck, Vote } from 'lucide-react'
 import { siteCopy } from '../content/siteCopy'
 import { Reveal } from '../components/motion/Reveal'
@@ -5,6 +6,8 @@ import { Card, CardGlow } from '../components/ui/Card'
 import { LinkButton } from '../components/ui/LinkButton'
 import { PageHeader } from '../components/ui/PageHeader'
 import { Section } from '../components/ui/Section'
+
+const PledgeMap = lazy(() => import('../components/pledges/PledgeMap'))
 
 export function HomePage() {
   return (
@@ -65,6 +68,8 @@ export function HomePage() {
           </Card>
         </Reveal>
       </Section>
+
+      <Suspense fallback={<div className="map-section-loading">Loading pledge map…</div>}><PledgeMap /></Suspense>
 
       <Section title="Start Here" kicker="Quick actions">
         <div className="action-cards grid gap-5 lg:grid-cols-3">

@@ -6,9 +6,9 @@ serif typography, with responsive layouts and reduced-motion support.
 
 ## Pages
 
-- `/` — Home
+- `/` — Home and live national pledge map
 - `/paper-ballots` — Why Paper Ballots
-- `/action` — Action Toolkit and pledge form
+- `/action` — Action Toolkit, pledge form and live national pledge map
 - `/request-help` — Help request form
 - `/about` — About & Support
 - `/privacy` and `/terms` — Legal pages
@@ -29,10 +29,19 @@ Most copy lives in `src/content/siteCopy.ts`; additional page and legal text liv
 in the page components. Design tokens are in `tailwind.config.js`, shared styles
 in `src/index.css`, and reusable components in `src/components`.
 
-The pledge and help forms validate input and send through EmailJS. Configure the
+The pledge form saves a private record and county total in the pledge API, then
+sends the existing EmailJS notification. The help form sends through EmailJS. Configure the
 `VITE_EMAILJS_*` values listed in `.env.example` locally or in Amplify. Never
 commit `.env` or credentials. The help form requires SMS consent when a phone
 number is provided. An unused platform API helper is not the active form transport.
+
+The map starts with new pledges and refreshes every 30 seconds and after a
+submission. It covers all 50 states, D.C., and Puerto Rico, using Census 2025
+county FIPS identifiers. The API validates county/state pairs and counts each
+normalized email once. Public responses contain aggregates only.
+
+See [docs/pledge-map.md](docs/pledge-map.md) for data provenance, architecture,
+deployment, verification, and operating notes.
 
 ## Hosting
 

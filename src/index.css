@@ -205,3 +205,76 @@
   .help-page .section-heading h2, .toolkit-page .section-heading h2 { font-size: 2.5rem; }
   .help-page .content-card:has(form), .toolkit-page .content-card:has(form) { padding: 2rem; }
 }
+
+/* National pledge map */
+.pledge-map-section { grid-column: 1 / -1; margin-top: 5rem; scroll-margin-top: 10rem; }
+.pledge-map-heading { display: flex; justify-content: space-between; align-items: end; gap: 2rem; }
+.pledge-map-heading > div { max-width: 43rem; }
+.pledge-stats { display: flex; flex-shrink: 0; gap: 12px; }
+.pledge-stats > div { background: white; border: 1px solid #dedfde; padding: 18px 22px; }
+.pledge-stats dt { font-size: 10px; text-transform: uppercase; letter-spacing: .16em; color: #5d6676; font-weight: 700; }
+.pledge-stats dd { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 38px; line-height: 1.2; margin-top: 8px; color: #172354; }
+.pledge-stats dd span { font-size: 25px; color: #5d6676; }
+.pledge-map-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-block: 28px 20px; }
+.map-text-button { display: inline-flex; gap: 7px; align-items: center; font-size: 14px; font-weight: 600; color: #172354; min-height: 44px; }
+.map-text-button:disabled { opacity: .5; }
+.pledge-map-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.county-map-frame { border: 1px solid #dedfde; background: #f7f8fb; }
+.county-map-caption { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px 0; color: #172354; }
+.county-map-caption span:first-child { font-weight: 600; }
+.county-map-caption span:last-child { font-size: 12px; color: #5d6676; }
+.county-map-canvas { position: relative; aspect-ratio: 1000 / 710; padding: 14px 8px 54px; }
+.county-map-canvas > svg { width: 100%; height: 100%; display: block; }
+.county-map-canvas svg.is-zoomed { cursor: grab; touch-action: none; }
+.county-map-canvas svg.is-zoomed:active { cursor: grabbing; }
+.county-map-canvas path[data-county] { cursor: pointer; }
+.county-map-canvas path[data-county]:hover { filter: brightness(.92); }
+.map-inset-labels { fill: #5d6676; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-anchor: middle; }
+.map-zoom-controls { position: absolute; bottom: 10px; right: 12px; display: flex; background: white; border: 1px solid #dedfde; border-radius: 2px; }
+.map-zoom-controls button { display: grid; place-items: center; width: 38px; min-height: 36px; color: #172354; }
+.map-zoom-controls button + button { border-left: 1px solid #dedfde; }
+.map-zoom-controls button:disabled { color: #b4b8c3; }
+.map-zoom-controls .map-reset { width: 50px; font-size: 12px; font-weight: 600; }
+.county-map-selection { min-height: 76px; display: flex; align-items: center; gap: 12px; background: white; border-top: 1px solid #dedfde; padding: 14px 20px; color: #172354; }
+.county-map-selection strong, .county-map-selection span { display: block; }
+.county-map-selection strong { font-size: 15px; }
+.county-map-selection span { color: #5d6676; font-size: 13px; margin-top: 3px; }
+.map-legend { display: flex; flex-wrap: wrap; gap: 12px 20px; font-size: 12px; color: #5d6676; margin-top: 14px; }
+.map-legend > span { display: flex; gap: 7px; align-items: center; }
+.map-legend > span:last-child { margin-left: auto; }
+.map-legend i { width: 10px; height: 10px; display: inline-block; }
+.legend-zero { background: white; border: 1px solid #7e89a6; }
+.legend-pledged { background: #c92539; }
+.county-search-panel { border: 1px solid #dedfde; background: white; padding: 22px; min-width: 0; }
+.county-search-results { margin-top: 18px; max-height: 380px; overflow-y: auto; scrollbar-width: thin; overscroll-behavior: contain; }
+.county-result { display: flex; justify-content: space-between; align-items: center; gap: 14px; text-align: left; width: 100%; padding: 12px 8px; border-bottom: 1px solid #f0f0f2; color: #172354; }
+.county-result:hover, .county-result.is-selected { background: #f4f3ef; }
+.county-result.is-selected { box-shadow: inset 3px 0 #c92539; }
+.county-result strong { display: block; font-size: 14px; font-weight: 600; }
+.county-result small { color: #5d6676; font-size: 12px; }
+.county-result-count { font-weight: 700; font-size: 15px; }
+.pledge-map-footnote { margin-top: 22px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 12px; color: #5d6676; }
+.pledge-map-footnote a { text-decoration: underline; text-underline-offset: 3px; }
+.map-loading { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; font-size: 14px; color: #5d6676; }
+.map-section-loading { grid-column: 1 / -1; margin-top: 5rem; min-height: 300px; display: grid; place-items: center; }
+.pledge-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+@media (max-width: 1100px) {
+  .pledge-map-heading { display: block; }
+  .pledge-stats { margin-top: 24px; }
+  .pledge-map-grid { grid-template-columns: minmax(0, 1fr) 270px; gap: 18px; }
+  .county-search-panel { padding: 18px; }
+}
+@media (max-width: 800px) {
+  .pledge-map-grid { grid-template-columns: 1fr; }
+  .county-search-results { max-height: 320px; }
+  .county-map-caption { padding: 14px 12px 0; }
+}
+@media (max-width: 480px) {
+  .pledge-stats { gap: 10px; }
+  .pledge-stats > div { flex: 1; padding: 15px; }
+  .pledge-stats dd { font-size: 32px; }
+  .pledge-stats dd span { font-size: 22px; }
+  .county-map-caption { align-items: start; flex-direction: column; gap: 3px; }
+  .map-legend > span:last-child { margin-left: 0; }
+  .county-map-canvas { aspect-ratio: 1000 / 830; }
+}

@@ -1,13 +1,15 @@
+import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { SiteLayout } from './components/layout/SiteLayout'
 import { HomePage } from './pages/HomePage'
 import { WhyPaperPage } from './pages/WhyPaperPage'
-import { ActionToolkitPage } from './pages/ActionToolkitPage'
 import { RequestHelpPage } from './pages/RequestHelpPage'
 import { AboutPage } from './pages/AboutPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { TermsPage } from './pages/TermsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+
+const ActionToolkitPage = lazy(() => import('./pages/ActionToolkitPage').then((module) => ({ default: module.ActionToolkitPage })))
 
 export default function App() {
   return (
@@ -15,7 +17,7 @@ export default function App() {
       <Route element={<SiteLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/paper-ballots" element={<WhyPaperPage />} />
-        <Route path="/action" element={<ActionToolkitPage />} />
+        <Route path="/action" element={<Suspense fallback={<div className="map-section-loading">Loading action toolkit…</div>}><ActionToolkitPage /></Suspense>} />
         <Route path="/request-help" element={<RequestHelpPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
