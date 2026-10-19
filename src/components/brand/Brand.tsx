@@ -23,16 +23,9 @@ export function BrandMark({ className }: { className?: string }) {
         strokeWidth="2"
       />
       <path
-        d="M20 21h17c5.2 0 9 3 9 7.8 0 5.2-4.2 7.9-9.6 7.9H20V21Zm7 6v6h8.7c2.1 0 3.3-1.1 3.3-3s-1.2-3-3.3-3H27Z"
+        d="M21 18h13c8 0 13 4 13 10s-5 10-13 10h-6v10h-7V18Zm7 6v8h6c4 0 6-1.5 6-4s-2-4-6-4h-6Z"
+        fillRule="evenodd"
         fill="#172354"
-        opacity="0.92"
-      />
-      <path
-        d="M22 41h20"
-        stroke="#c92539"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        opacity="0.9"
       />
     </svg>
   )
