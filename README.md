@@ -37,8 +37,10 @@ number is provided. An unused platform API helper is not the active form transpo
 ## Hosting
 
 AWS Amplify app `d2pqbeealr8kyx` in `us-west-2` builds and publishes pushes to `main`.
-The build runs `npm ci` and `npm run build`, publishes `dist`, and rewrites unknown
-paths to `index.html` for client-side routing.
+The build runs `npm ci` and `npm run build` and publishes `dist`. Amplify uses
+the HTTP 200 SPA rewrite saved in [docs/amplify-rewrites.json](docs/amplify-rewrites.json)
+so direct page visits work, while assets retain their own responses. This rule
+is configured on the Amplify app; it is not automatically read from the repository.
 
 Current hosting URL: https://main.d2pqbeealr8kyx.amplifyapp.com/
 
