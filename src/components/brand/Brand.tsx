@@ -11,9 +11,9 @@ export function BrandMark({ className }: { className?: string }) {
     >
       <defs>
         <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stopColor="#be1e2d" />
+          <stop offset="0" stopColor="#c92539" />
           <stop offset="0.55" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#1b2673" />
+          <stop offset="1" stopColor="#172354" />
         </linearGradient>
       </defs>
       <path
@@ -24,12 +24,12 @@ export function BrandMark({ className }: { className?: string }) {
       />
       <path
         d="M20 21h17c5.2 0 9 3 9 7.8 0 5.2-4.2 7.9-9.6 7.9H20V21Zm7 6v6h8.7c2.1 0 3.3-1.1 3.3-3s-1.2-3-3.3-3H27Z"
-        fill="#1b2673"
+        fill="#172354"
         opacity="0.92"
       />
       <path
         d="M22 41h20"
-        stroke="#be1e2d"
+        stroke="#c92539"
         strokeWidth="2.4"
         strokeLinecap="round"
         opacity="0.9"
@@ -40,13 +40,13 @@ export function BrandMark({ className }: { className?: string }) {
 
 export function BrandLockup({ className }: { className?: string }) {
   return (
-    <Link to="/" className={cn('group inline-flex items-center gap-3', className)}>
+    <Link to="/" className={cn('brand-lockup group inline-flex items-center gap-3', className)}>
       <BrandMark className="shrink-0 transition-transform duration-300 group-hover:scale-[1.03]" />
       <div className="leading-tight">
-        <div className="font-display text-lg tracking-wide text-patriot-navy">
+        <div className="font-display text-[27px] font-bold leading-none tracking-tight text-patriot-navy">
           Patriots For Paper
         </div>
-        <div className="text-xs font-medium text-patriot-muted">
+        <div className="mt-1.5 text-[11px] font-medium text-patriot-muted">
           Return elections to auditable paper ballots.
         </div>
       </div>

@@ -112,7 +112,7 @@ export function RequestHelpPage() {
   }
 
   return (
-    <div>
+    <div className="help-page">
       <Reveal>
         <PageHeader
           eyebrow="Request help"

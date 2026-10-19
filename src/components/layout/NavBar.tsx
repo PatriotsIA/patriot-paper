@@ -38,7 +38,7 @@ export function NavBar() {
   return (
     <header className="sticky top-0 z-50">
       <div className="bg-patriot-navy text-patriot-white">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-2 text-xs sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-2.5 text-xs sm:px-8 lg:px-12">
           <a
             className="font-semibold tracking-wide hover:underline"
             href="https://patriotsinaction.com/"
@@ -59,11 +59,10 @@ export function NavBar() {
       </div>
 
       <div className="relative border-b border-patriot-border bg-patriot-bg/95 backdrop-blur">
-        <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-patriot-red via-patriot-blue to-patriot-navy" />
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-[1440px] items-center justify-between gap-5 px-5 py-5 sm:px-8 lg:px-12">
           <BrandLockup />
 
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-1 xl:flex">
             {nav.map((item) => (
               <NavLink
                 key={item.to}
@@ -71,7 +70,7 @@ export function NavBar() {
                 end={item.to === '/'}
                 className={({ isActive }) =>
                   cn(
-                    'relative rounded-md px-3 py-2 text-sm font-semibold tracking-wide transition after:absolute after:inset-x-3 after:-bottom-1 after:h-[2px] after:origin-left after:rounded-full after:bg-patriot-red after:transition-transform after:duration-300 after:content-[\'\']',
+                    'relative rounded-sm px-2.5 py-2 text-sm font-semibold tracking-wide transition after:absolute after:inset-x-3 after:-bottom-1 after:h-[2px] after:origin-left after:rounded-full after:bg-patriot-red after:transition-transform after:duration-300 after:content-[\'\']',
                     isActive
                       ? 'text-patriot-navy after:scale-x-100'
                       : 'text-patriot-navy/80 after:scale-x-0 hover:text-patriot-navy hover:after:scale-x-100',
@@ -83,7 +82,7 @@ export function NavBar() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden items-center gap-2 xl:flex">
             <LinkButton to="/paper-ballots#take-action" variant="outline" size="sm">
               Take action
             </LinkButton>
@@ -94,9 +93,11 @@ export function NavBar() {
 
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-patriot-border bg-patriot-bg text-patriot-navy shadow-[0_10px_30px_rgba(27,38,115,0.10)] hover:border-patriot-blue/55 hover:bg-patriot-bgSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-patriot-blue/25 focus-visible:ring-offset-2 focus-visible:ring-offset-patriot-bg lg:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-patriot-border bg-patriot-bg text-patriot-navy shadow-[0_10px_30px_rgba(27,38,115,0.10)] hover:border-patriot-blue/55 hover:bg-patriot-bgSoft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-patriot-blue/25 focus-visible:ring-offset-2 focus-visible:ring-offset-patriot-bg xl:hidden"
             onClick={() => setOpen(true)}
             aria-label="Open menu"
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -106,7 +107,7 @@ export function NavBar() {
       <AnimatePresence>
         {open ? (
           <motion.div
-            className="fixed inset-0 z-[60] lg:hidden"
+            className="fixed inset-0 z-[60] xl:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -118,7 +119,8 @@ export function NavBar() {
               onClick={() => setOpen(false)}
             />
             <motion.div
-              className="absolute right-0 top-0 h-full w-[min(420px,92vw)] border-l border-patriot-border bg-patriot-bg backdrop-blur"
+              id="mobile-navigation"
+              className="absolute right-0 top-0 h-full overflow-y-auto w-[min(420px,92vw)] border-l border-patriot-border bg-patriot-bg backdrop-blur"
               initial={{ x: 40, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: 40, opacity: 0 }}
@@ -132,7 +134,7 @@ export function NavBar() {
                 </Link>
                 <button
                   type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-patriot-border bg-patriot-bg text-patriot-navy hover:border-patriot-blue/55 hover:bg-patriot-bgSoft"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-sm border border-patriot-border bg-patriot-bg text-patriot-navy hover:border-patriot-blue/55 hover:bg-patriot-bgSoft"
                   onClick={() => setOpen(false)}
                   aria-label="Close menu"
                 >
@@ -149,7 +151,7 @@ export function NavBar() {
                     onClick={() => setOpen(false)}
                     className={({ isActive }) =>
                       cn(
-                        'rounded-lg px-4 py-3 text-base font-semibold tracking-wide',
+                        'rounded-sm px-4 py-3 text-base font-semibold tracking-wide',
                         isActive
                           ? 'bg-patriot-bgSoft text-patriot-navy'
                           : 'text-patriot-navy/85 hover:bg-patriot-bgSoft',

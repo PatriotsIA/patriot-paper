@@ -1,30 +1,47 @@
-# Patriots For Paper — React + Vite site
+# Patriots For Paper
 
-A sleek, responsive campaign-style site (same theme as the Bond Assassins build) focused on **returning elections to auditable paper ballots**.
+A React + TypeScript campaign site for auditable paper ballots, built with Vite
+and Tailwind CSS. Its visual style follows Recover America's navy, red, and
+serif typography, with responsive layouts and reduced-motion support.
 
 ## Pages
 
 - `/` — Home
 - `/paper-ballots` — Why Paper Ballots
-- `/action` — Action Toolkit (includes a pledge form)
-- `/request-help` — Request Help (intake form)
+- `/action` — Action Toolkit and pledge form
+- `/request-help` — Help request form
 - `/about` — About & Support
+- `/privacy` and `/terms` — Legal pages
 
-## Run locally
+## Development
+
+Use Node.js 22 or newer.
 
 ```bash
-npm install
+npm ci
 npm run dev
-```
-
-Build for production:
-
-```bash
 npm run build
+npm run lint
 npm run preview
 ```
 
-## Notes
+Most copy lives in `src/content/siteCopy.ts`; additional page and legal text lives
+in the page components. Design tokens are in `tailwind.config.js`, shared styles
+in `src/index.css`, and reusable components in `src/components`.
 
-- Forms are **front-end only** right now (validation + toast). Hook up submissions to your backend/API when ready.
-- Copy lives in `src/content/siteCopy.ts`.
+The pledge and help forms validate input and send through EmailJS. Configure the
+`VITE_EMAILJS_*` values listed in `.env.example` locally or in Amplify. Never
+commit `.env` or credentials. The help form requires SMS consent when a phone
+number is provided. An unused platform API helper is not the active form transport.
+
+## Hosting
+
+AWS Amplify app `d2pqbeealr8kyx` in `us-west-2` builds and publishes pushes to `main`.
+The build runs `npm ci` and `npm run build`, publishes `dist`, and rewrites unknown
+paths to `index.html` for client-side routing.
+
+Current hosting URL: https://main.d2pqbeealr8kyx.amplifyapp.com/
+
+Custom domain setup for `patriotsforpaper.com` and `www.patriotsforpaper.com` has
+been initiated in Amplify. The remaining GoDaddy DNS entries and verification
+steps are in [docs/domain-setup.md](docs/domain-setup.md).

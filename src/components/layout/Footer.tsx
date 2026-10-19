@@ -12,14 +12,14 @@ export function Footer() {
 
   return (
     <footer className="relative bg-patriot-navy text-patriot-white">
-      <div className="absolute inset-x-0 top-0 h-[4px] bg-gradient-to-r from-patriot-red via-patriot-blue to-patriot-white" />
-      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="absolute inset-x-0 top-0 h-[3px] bg-patriot-red" />
+      <div className="mx-auto w-full max-w-7xl px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
         <div className="grid gap-8 md:grid-cols-[1.2fr_0.9fr_0.9fr]">
           <div>
             <div className="flex items-center gap-3">
               <BrandMark className="h-10 w-10" />
               <div>
-                <div className="font-display text-lg tracking-wide">Patriots For Paper</div>
+                <div className="font-display text-3xl font-semibold tracking-tight">Patriots For Paper</div>
                 <div className="text-sm text-patriot-white/70">
                   Return elections to auditable paper ballots.
                 </div>
@@ -78,7 +78,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-xl border border-white/15 bg-white/10 p-4">
+        <div className="mt-10 border-y border-white/15 py-5">
           <div className="text-xs leading-relaxed text-patriot-white/80">
             Patriots For Paper is a civic education initiative. Always verify current local and
             state election law before taking action.

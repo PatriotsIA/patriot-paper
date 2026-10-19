@@ -8,9 +8,10 @@ import { Section } from '../components/ui/Section'
 
 export function HomePage() {
   return (
-    <div>
+    <div className="home-page">
       <Reveal>
         <PageHeader
+          home
           eyebrow="Presented by citizens who care"
           title={siteCopy.home.heroTitle}
           subtitle={siteCopy.home.heroSubtitle}
@@ -30,24 +31,24 @@ export function HomePage() {
         />
       </Reveal>
 
-      <div className="mt-10 grid gap-4 md:grid-cols-3">
+      <div className="home-pillars grid gap-0 md:grid-cols-3">
         {[
           { icon: Vote, title: 'Paper ballots', body: siteCopy.home.pillars[0].body },
           { icon: ShieldCheck, title: 'Public counts', body: siteCopy.home.pillars[1].body },
           { icon: ClipboardCheck, title: 'Real audits', body: siteCopy.home.pillars[2].body },
         ].map((p, idx) => (
           <Reveal key={p.title} delay={Math.min(0.06 * idx, 0.18)}>
-            <Card className="p-5">
+            <Card className="pillar-card p-7 sm:p-8">
               <CardGlow />
               <div className="relative">
                 <div className="flex items-center gap-3">
-                  <p.icon className="h-5 w-5 text-patriot-blue" />
-                  <div className="text-sm font-bold uppercase tracking-[0.22em] text-patriot-red">
+                  <p.icon className="h-6 w-6 text-patriot-red" />
+                  <div className="text-xs font-bold uppercase tracking-[0.18em] text-patriot-red">
                     {p.title}
                   </div>
                 </div>
-                <div className="mt-3 text-base font-semibold text-patriot-navy">{p.title}</div>
-                <div className="mt-2 text-sm leading-relaxed text-patriot-text">{p.body}</div>
+                <div className="mt-5 font-display text-3xl font-semibold text-patriot-navy">{p.title}</div>
+                <div className="mt-3 text-base leading-relaxed text-patriot-text">{p.body}</div>
               </div>
             </Card>
           </Reveal>
@@ -66,15 +67,15 @@ export function HomePage() {
       </Section>
 
       <Section title="Start Here" kicker="Quick actions">
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="action-cards grid gap-5 lg:grid-cols-3">
           <Reveal>
             <Card className="p-6">
               <CardGlow />
               <div className="relative">
-                <div className="text-sm font-bold uppercase tracking-[0.22em] text-patriot-red">
+                <div className="text-xs font-bold uppercase tracking-[0.18em] text-patriot-red">
                   Learn
                 </div>
-                <div className="mt-3 font-display text-2xl font-bold tracking-wide text-patriot-navy">
+                <div className="mt-3 font-display text-3xl font-semibold tracking-tight text-patriot-navy">
                   Understand your county.
                 </div>
                 <div className="mt-3 text-sm leading-relaxed text-patriot-text">
@@ -93,10 +94,10 @@ export function HomePage() {
             <Card className="p-6">
               <CardGlow />
               <div className="relative">
-                <div className="text-sm font-bold uppercase tracking-[0.22em] text-patriot-red">
+                <div className="text-xs font-bold uppercase tracking-[0.18em] text-patriot-red">
                   Advocate
                 </div>
-                <div className="mt-3 font-display text-2xl font-bold tracking-wide text-patriot-navy">
+                <div className="mt-3 font-display text-3xl font-semibold tracking-tight text-patriot-navy">
                   Paper + audits.
                 </div>
                 <div className="mt-3 text-sm leading-relaxed text-patriot-text">
@@ -115,10 +116,10 @@ export function HomePage() {
             <Card className="p-6">
               <CardGlow />
               <div className="relative">
-                <div className="text-sm font-bold uppercase tracking-[0.22em] text-patriot-red">
+                <div className="text-xs font-bold uppercase tracking-[0.18em] text-patriot-red">
                   Organize
                 </div>
-                <div className="mt-3 font-display text-2xl font-bold tracking-wide text-patriot-navy">
+                <div className="mt-3 font-display text-3xl font-semibold tracking-tight text-patriot-navy">
                   Build a local team.
                 </div>
                 <div className="mt-3 text-sm leading-relaxed text-patriot-text">

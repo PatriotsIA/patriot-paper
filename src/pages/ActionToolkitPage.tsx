@@ -91,7 +91,7 @@ export function ActionToolkitPage() {
   }
 
   return (
-    <div>
+    <div className="toolkit-page">
       <Reveal>
         <PageHeader
           eyebrow="Action toolkit"

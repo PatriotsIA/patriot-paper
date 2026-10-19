@@ -9,7 +9,7 @@ export function SiteLayout() {
     <div className="page-shell">
       <ScrollProgress />
       <NavBar />
-      <main className="relative mx-auto w-full max-w-6xl px-4 pb-24 pt-10 sm:px-6 lg:px-8">
+      <main className="relative mx-auto w-full max-w-7xl px-5 pb-24 sm:px-8 lg:px-12">
         <Outlet />
       </main>
       <Footer />
