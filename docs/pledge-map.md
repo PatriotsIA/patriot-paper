@@ -141,3 +141,9 @@ no synthetic notification emails were sent.
 Two failed initial stacks (resource ordering, then the account concurrency quota)
 were rolled back. Their empty retained tables and failed stack records were
 removed; the final stack is the one named above.
+
+October 22 release verification: Amplify job 8 deployed commit `cbc352b`.
+Hosted checks passed on `/` and `/action` at desktop and mobile widths, including
+the `hero → pledge-map → pledge` order and intercepted form/email submission.
+Read-only production counts still loaded normally (existing pledges preserved).
+The hosted check results are in `docs/pledge-layout-check.json`.
