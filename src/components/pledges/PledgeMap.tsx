@@ -164,7 +164,7 @@ export default function PledgeMap() {
             {matching.slice(0, limit).map((county) => <button key={county.id} className={`county-result${selected === county.id ? ' is-selected' : ''}`} aria-pressed={selected === county.id} onClick={() => chooseCounty(county.id)}><span><strong>{county.name}</strong><small>{stateByCode.get(county.state)?.name}</small></span><span className="county-result-count">{data ? format(data.counties[county.id] ?? 0) : '—'}</span></button>)}
             {matching.length > limit && <button className="my-3 w-full border border-patriot-border py-3 text-sm font-semibold text-patriot-navy" onClick={() => setLimit((value) => value + 50)}>Show more counties</button>}
           </div>
-          <Link to="/action#pledge" className="mt-5 flex items-center justify-between gap-2 border-t border-patriot-border pt-5 font-semibold text-patriot-red">Add your pledge <ArrowUpRight size={18} /></Link>
+          <Link to="#pledge" className="mt-5 flex items-center justify-between gap-2 border-t border-patriot-border pt-5 font-semibold text-patriot-red">Add your pledge <ArrowUpRight size={18} /></Link>
         </aside>
       </div>
       <div className="pledge-map-footnote"><span>{loading ? 'Updating totals…' : data ? `Checked ${new Date(data.asOf).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · Refreshes every 30 seconds` : 'Waiting for totals'}. One pledge per email address.</span><a href="https://www.census.gov/geographies/mapping-files/2025/geo/carto-boundary-file.html" target="_blank" rel="noreferrer">County boundaries: U.S. Census Bureau, 2025</a></div>

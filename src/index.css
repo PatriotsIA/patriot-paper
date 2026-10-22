@@ -130,7 +130,7 @@
     padding-block: 2.5rem;
   }
   .home-pillars > div + div { border-left: 1px solid theme(colors.patriot.border); }
-  .home-page > .content-section:first-of-type {
+  .home-page > #mission {
     display: grid;
     grid-template-columns: 1fr 2fr;
     align-items: start;
@@ -138,9 +138,9 @@
     padding-block: 1rem 4.5rem;
     border-bottom: 1px solid theme(colors.patriot.border);
   }
-  .home-page > .content-section:first-of-type > div:last-child { margin-top: 0; }
-  .home-page > .content-section:first-of-type .content-card { padding: 0; border: 0; box-shadow: none; background: transparent; }
-  .home-page > .content-section:first-of-type p {
+  .home-page > #mission > div:last-child { margin-top: 0; }
+  .home-page > #mission .content-card { padding: 0; border: 0; box-shadow: none; background: transparent; }
+  .home-page > #mission p {
     font-family: theme(fontFamily.display);
     font-size: 30px;
     line-height: 1.45;
@@ -170,15 +170,15 @@
 @media (max-width: 900px) {
   .hero-emblem { right: -7rem; opacity: .18; width: 350px; height: 350px; }
   .page-header-inner { padding-inline: 2rem; }
-  .home-page > .content-section:first-of-type { gap: 2rem; }
+  .home-page > #mission { gap: 2rem; }
 }
 @media (max-width: 767px) {
   .page-header-inner { padding: 3.25rem 2rem 3.5rem; }
   .page-header-home .page-header-inner { padding-block: 3.75rem 4rem; }
   .home-pillars > div + div { border-left: 0; border-top: 1px solid theme(colors.patriot.border); }
   .home-pillars .pillar-card { padding: 1.75rem 0; }
-  .home-page > .content-section:first-of-type { grid-template-columns: 1fr; gap: 1.5rem; padding-bottom: 3.5rem; }
-  .home-page > .content-section:first-of-type p { font-size: 27px; }
+  .home-page > #mission { grid-template-columns: 1fr; gap: 1.5rem; padding-bottom: 3.5rem; }
+  .home-page > #mission p { font-size: 27px; }
 }
 @media (max-width: 639px) {
   .page-header-inner { padding-inline: 1.25rem; }
@@ -199,7 +199,7 @@
 }
 
 @media (min-width: 1100px) {
-  .help-page, .toolkit-page { display: grid; grid-template-columns: 1fr 1.15fr; column-gap: 3rem; align-items: start; }
+  .help-page { display: grid; grid-template-columns: 1fr 1.15fr; column-gap: 3rem; align-items: start; }
   .help-page > :first-child, .toolkit-page > :first-child { grid-column: 1 / -1; }
   .toolkit-page > .content-section > div:last-child > .grid { grid-template-columns: 1fr; }
   .help-page .section-heading h2, .toolkit-page .section-heading h2 { font-size: 2.5rem; }
@@ -278,3 +278,8 @@
   .map-legend > span:last-child { margin-left: 0; }
   .county-map-canvas { aspect-ratio: 1000 / 830; }
 }
+
+/* The map and shared pledge form follow each page hero. */
+.home-page > #pledge, .toolkit-page > #pledge { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 3rem; align-items: start; margin-bottom: 4rem; }
+.home-page > #pledge > div:last-child, .toolkit-page > #pledge > div:last-child { margin-top: 0; }
+@media (max-width: 900px) { .home-page > #pledge, .toolkit-page > #pledge { grid-template-columns: 1fr; gap: 1.5rem; } }

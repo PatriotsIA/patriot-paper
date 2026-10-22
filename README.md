@@ -6,7 +6,7 @@ serif typography, with responsive layouts and reduced-motion support.
 
 ## Pages
 
-- `/` — Home and live national pledge map
+- `/` — Home; national pledge map and pledge form immediately beneath the hero
 - `/paper-ballots` — Why Paper Ballots
 - `/action` — Action Toolkit, pledge form and live national pledge map
 - `/request-help` — Help request form
@@ -39,6 +39,10 @@ The map starts with new pledges and refreshes every 30 seconds and after a
 submission. It covers all 50 states, D.C., and Puerto Rico, using Census 2025
 county FIPS identifiers. The API validates county/state pairs and counts each
 normalized email once. Public responses contain aggregates only.
+
+The home and action pages share `src/components/pledges/PledgeSection.tsx`.
+Both place the map and pledge form directly below their hero. The shared form
+preserves the existing wording, storage and EmailJS behavior.
 
 See [docs/pledge-map.md](docs/pledge-map.md) for data provenance, architecture,
 deployment, verification, and operating notes.

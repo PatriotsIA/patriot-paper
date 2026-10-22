@@ -6,6 +6,7 @@ import { Card, CardGlow } from '../components/ui/Card'
 import { LinkButton } from '../components/ui/LinkButton'
 import { PageHeader } from '../components/ui/PageHeader'
 import { Section } from '../components/ui/Section'
+import { PledgeSection } from '../components/pledges/PledgeSection'
 
 const PledgeMap = lazy(() => import('../components/pledges/PledgeMap'))
 
@@ -20,7 +21,7 @@ export function HomePage() {
           subtitle={siteCopy.home.heroSubtitle}
           actions={
             <>
-              <LinkButton to="/action#pledge" variant="primary">
+              <LinkButton to="/#pledge" variant="primary">
                 Join the pledge <ArrowRight className="h-4 w-4" />
               </LinkButton>
               <LinkButton to="/paper-ballots" variant="outline">
@@ -33,6 +34,9 @@ export function HomePage() {
           }
         />
       </Reveal>
+
+      <Suspense fallback={<div className="map-section-loading">Loading pledge map…</div>}><PledgeMap /></Suspense>
+      <PledgeSection />
 
       <div className="home-pillars grid gap-0 md:grid-cols-3">
         {[
@@ -58,7 +62,7 @@ export function HomePage() {
         ))}
       </div>
 
-      <Section title="The Mission" kicker="Why we exist">
+      <Section id="mission" title="The Mission" kicker="Why we exist">
         <Reveal>
           <Card>
             <CardGlow />
@@ -69,7 +73,6 @@ export function HomePage() {
         </Reveal>
       </Section>
 
-      <Suspense fallback={<div className="map-section-loading">Loading pledge map…</div>}><PledgeMap /></Suspense>
 
       <Section title="Start Here" kicker="Quick actions">
         <div className="action-cards grid gap-5 lg:grid-cols-3">

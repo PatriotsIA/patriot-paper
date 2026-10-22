@@ -5,6 +5,15 @@ on the home and action pages. The user's instruction to preserve existing copy
 continues to apply to existing material; this feature adds map labels, county
 selection and submission feedback.
 
+On October 22, the map and pledge form were moved immediately below the hero
+on both the home and action pages. The existing form was extracted unchanged
+into `PledgeSection.tsx` and is shared by both pages. Map pledge links now target
+the form on the current page. The checklist, mission and other sections follow
+the map/form. No backend, notification routing or pledge text was changed.
+Desktop and mobile browser checks verify layout order, county reset on state
+change, and intercepted submission/notification followed by a map refresh.
+Run `scripts/check-pledge-layout.mjs` with Playwright available to repeat them.
+
 ## Geography and behavior
 
 The catalog and polygons come from the Census Bureau's **2025 cartographic

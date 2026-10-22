@@ -1,0 +1,46 @@
+{
+  "base": "http://127.0.0.1:4180",
+  "at": "2026-10-22T19:37:18.578Z",
+  "checks": [
+    {
+      "path": "/",
+      "width": 390,
+      "order": [
+        "hero",
+        "pledge-map",
+        "pledge"
+      ],
+      "form": "existing storage and email flow preserved; mocked submission refreshed map"
+    },
+    {
+      "path": "/",
+      "width": 1440,
+      "order": [
+        "hero",
+        "pledge-map",
+        "pledge"
+      ],
+      "form": "existing storage and email flow preserved; mocked submission refreshed map"
+    },
+    {
+      "path": "/action",
+      "width": 390,
+      "order": [
+        "hero",
+        "pledge-map",
+        "pledge"
+      ],
+      "form": "existing storage and email flow preserved; mocked submission refreshed map"
+    },
+    {
+      "path": "/action",
+      "width": 1440,
+      "order": [
+        "hero",
+        "pledge-map",
+        "pledge"
+      ],
+      "form": "existing storage and email flow preserved; mocked submission refreshed map"
+    }
+  ]
+}
