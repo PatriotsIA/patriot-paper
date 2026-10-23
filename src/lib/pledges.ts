@@ -2,7 +2,7 @@ import config from '../config/pledge-api.json'
 import { countyById } from './geography'
 
 const baseUrl = (import.meta.env.VITE_PLEDGE_API_URL || config.url).replace(/\/$/, '')
-export type Pledge = { name: string; email: string; countyFips: string; state: string; role: string; agreePrivacyPolicy: boolean; website: string }
+export type Pledge = { publishFirstName: boolean; publicFirstName: string; name: string; email: string; countyFips: string; state: string; role: string; agreePrivacyPolicy: boolean; website: string }
 export type PledgeCounts = { counties: Record<string, number>; total: number; countiesRepresented: number; updatedAt: string | null; asOf: string }
 
 async function api(path: string, options: RequestInit) {
@@ -30,4 +30,15 @@ export async function fetchPledgeCounts(signal: AbortSignal): Promise<PledgeCoun
   const counts = Object.fromEntries(entries) as Record<string, number>
   // Derive summary values from the same snapshot as the map so they always agree.
   return { counties: counts, total: Object.values(counts).reduce((sum, count) => sum + count, 0), countiesRepresented: Object.values(counts).filter((count) => count > 0).length, updatedAt: 'updatedAt' in data && typeof data.updatedAt === 'string' ? data.updatedAt : null, asOf: 'asOf' in data && typeof data.asOf === 'string' ? data.asOf : new Date().toISOString() }
+}
+
+export type PublicSupporter = { id: string; firstName: string; countyFips: string }
+export async function fetchSupporters(county: string, cursor: string | undefined, signal: AbortSignal): Promise<{ items: PublicSupporter[]; nextCursor: string | null }> {
+  const params = new URLSearchParams({ limit: '40' })
+  if (county) params.set('county', county)
+  if (cursor) params.set('cursor', cursor)
+  const data = await api(`/supporters?${params}`, { signal: AbortSignal.any([signal, AbortSignal.timeout(15000)]) })
+  if (!data || typeof data !== 'object' || !('items' in data) || !Array.isArray(data.items) || !('nextCursor' in data) || !(data.nextCursor === null || typeof data.nextCursor === 'string')) throw new Error('Names unavailable')
+  if (data.items.some(item => !item || typeof item.id !== 'string' || typeof item.firstName !== 'string' || !countyById.has(item.countyFips) || (county && county !== item.countyFips))) throw new Error('Names unavailable')
+  return { items: data.items, nextCursor: data.nextCursor }
 }

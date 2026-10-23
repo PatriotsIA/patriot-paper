@@ -13,7 +13,7 @@ def template():
       'Role':{'Type':'AWS::IAM::Role','Properties':{
         'AssumeRolePolicyDocument':{'Version':'2012-10-17','Statement':[{'Effect':'Allow','Principal':{'Service':'lambda.amazonaws.com'},'Action':'sts:AssumeRole'}]},
         'Policies':[{'PolicyName':'PledgeStorage','PolicyDocument':{'Version':'2012-10-17','Statement':[
-          {'Effect':'Allow','Action':['dynamodb:GetItem','dynamodb:PutItem','dynamodb:UpdateItem'],'Resource':att('Pledges','Arn')},
+          {'Effect':'Allow','Action':['dynamodb:GetItem','dynamodb:PutItem','dynamodb:UpdateItem','dynamodb:Query'],'Resource':att('Pledges','Arn')},
           {'Effect':'Allow','Action':['logs:CreateLogStream','logs:PutLogEvents'],'Resource':sub('arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${AWS::StackName}:*')}
         ]}}]}},
       'LogGroup':{'Type':'AWS::Logs::LogGroup','Properties':{'LogGroupName':sub('/aws/lambda/${AWS::StackName}'),'RetentionInDays':30}},
@@ -25,8 +25,9 @@ def template():
         'CorsConfiguration':{'AllowOrigins':ref('Origins'),'AllowMethods':['GET','POST','OPTIONS'],'AllowHeaders':['content-type'],'MaxAge':600}}},
       'Integration':{'Type':'AWS::ApiGatewayV2::Integration','Properties':{'ApiId':ref('Api'),'IntegrationType':'AWS_PROXY','IntegrationUri':att('Function','Arn'),'PayloadFormatVersion':'2.0','TimeoutInMillis':15000}},
       'ReadRoute':{'Type':'AWS::ApiGatewayV2::Route','Properties':{'ApiId':ref('Api'),'RouteKey':'GET /counts','Target':{'Fn::Join':['/', ['integrations',ref('Integration')]]}}},
+      'SupportersRoute':{'Type':'AWS::ApiGatewayV2::Route','Properties':{'ApiId':ref('Api'),'RouteKey':'GET /supporters','Target':{'Fn::Join':['/', ['integrations',ref('Integration')]]}}},
       'WriteRoute':{'Type':'AWS::ApiGatewayV2::Route','Properties':{'ApiId':ref('Api'),'RouteKey':'POST /pledges','Target':{'Fn::Join':['/', ['integrations',ref('Integration')]]}}},
-      'Stage':{'Type':'AWS::ApiGatewayV2::Stage','DependsOn':['ReadRoute','WriteRoute'],'Properties':{'ApiId':ref('Api'),'StageName':'$default','AutoDeploy':True,
+      'Stage':{'Type':'AWS::ApiGatewayV2::Stage','DependsOn':['ReadRoute','WriteRoute','SupportersRoute'],'Properties':{'ApiId':ref('Api'),'StageName':'$default','AutoDeploy':True,
         'DefaultRouteSettings':{'ThrottlingBurstLimit':30,'ThrottlingRateLimit':15},
         'RouteSettings':{'POST /pledges':{'ThrottlingBurstLimit':10,'ThrottlingRateLimit':5,'DetailedMetricsEnabled':True}}}},
       'Permission':{'Type':'AWS::Lambda::Permission','Properties':{'Action':'lambda:InvokeFunction','FunctionName':ref('Function'),'Principal':'apigateway.amazonaws.com','SourceArn':sub('arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${Api}/*/*/*')}},

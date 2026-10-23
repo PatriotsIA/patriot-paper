@@ -34,7 +34,7 @@ try {
   await selects.nth(0).selectOption('TX');await selects.nth(1).selectOption('48381');
   await selects.nth(0).selectOption('OR');assert.equal(await selects.nth(1).inputValue(),'');
   await selects.nth(0).selectOption('TX');await selects.nth(1).selectOption('48381');
-  await form.locator('input[type=checkbox]').check();
+  await form.locator('input[name=agreePrivacyPolicy]').check();
   await form.getByRole('button',{name:'Join pledge'}).click();
   await page.waitForFunction(()=>document.querySelector('#pledge input[autocomplete=name]').value==='');
   assert.equal(payload.countyFips,'48381');assert.equal(payload.state,'TX');assert.equal(payload.agreePrivacyPolicy,true);assert.equal(notifications,1);

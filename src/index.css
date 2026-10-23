@@ -283,3 +283,16 @@
 .home-page > #pledge, .toolkit-page > #pledge { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 3rem; align-items: start; margin-bottom: 4rem; }
 .home-page > #pledge > div:last-child, .toolkit-page > #pledge > div:last-child { margin-top: 0; }
 @media (max-width: 900px) { .home-page > #pledge, .toolkit-page > #pledge { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+.supporter-names { margin-top: 20px; border: 1px solid #dedfde; background: #fff; }
+.supporter-names-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 12px; padding: 20px; border-bottom: 1px solid #dedfde; }
+.supporter-names-heading h3 { color: #172354; font-weight: 700; font-size: 18px; }
+.supporter-names-heading p { margin-top: 5px; color: #5d6676; font-size: 13px; }
+.supporter-names-scroll { max-height: 300px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 16px 20px; }
+.supporter-names-scroll:focus-visible { outline: 2px solid #172354; outline-offset: 2px; }
+.supporter-names-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(180px, 100%), 1fr)); gap: 12px; list-style: none; }
+.supporter-names-list li { padding: 12px; background: #f7f7fa; overflow-wrap: anywhere; }
+.supporter-names-list strong { display: block; color: #172354; font-size: 17px; }
+.supporter-names-list span { display: block; color: #5d6676; font-size: 12px; margin-top: 3px; }
+.supporter-names-status { padding: 14px 0; font-size: 13px; color: #5d6676; }
+.supporter-load { min-height: 44px; }

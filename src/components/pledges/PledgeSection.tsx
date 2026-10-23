@@ -22,6 +22,8 @@ type PledgeForm = {
   name: string
   email: string
   role: string
+  publishFirstName: boolean
+  publicFirstName: string
   agreePrivacyPolicy: boolean
 }
 
@@ -29,7 +31,7 @@ export function PledgeSection() {
   useHashScroll()
 
   const empty = useMemo<PledgeForm>(
-    () => ({ county: '', website: '', state: '', name: '', email: '', role: '', agreePrivacyPolicy: false }),
+    () => ({ county: '', website: '', state: '', name: '', email: '', role: '', publishFirstName: false, publicFirstName: '', agreePrivacyPolicy: false }),
     [],
   )
   const [form, setForm] = useState<PledgeForm>(empty)
@@ -49,6 +51,7 @@ export function PledgeSection() {
     if (!states.some((state) => state.code === form.state)) next.state = 'Select your state'
     if (countyById.get(form.county)?.state !== form.state) next.county = 'Select a county in your state'
     if (!form.agreePrivacyPolicy) next.agreePrivacyPolicy = 'Required'
+    if (form.publishFirstName && !form.publicFirstName.trim()) next.publicFirstName = 'Enter the first name you want displayed'
     setErrors(next)
     if (Object.keys(next).length) return
     setSubmitting(true)
@@ -70,7 +73,7 @@ export function PledgeSection() {
         .filter((line): line is string => Boolean(line))
         .join('\n')
 
-      await recordPledge({ name, email, countyFips: form.county, state, role, agreePrivacyPolicy: form.agreePrivacyPolicy, website: form.website })
+      await recordPledge({ publishFirstName: form.publishFirstName, publicFirstName: form.publicFirstName.trim(), name, email, countyFips: form.county, state, role, agreePrivacyPolicy: form.agreePrivacyPolicy, website: form.website })
       // Storage is authoritative. A notification outage must not lose a saved pledge.
       let emailSent = true
       await sendEmailJsMessage({
@@ -153,10 +156,19 @@ export function PledgeSection() {
                 </Field>
               </div>
 
+              <div className="space-y-3">
+                <label className="flex items-start gap-3 text-sm text-patriot-text">
+                  <input type="checkbox" name="publishFirstName" checked={form.publishFirstName} onChange={event => setForm(current => ({ ...current, publishFirstName: event.target.checked }))} className="mt-1 h-4 w-4 accent-patriot-blue" />
+                  <span>Show my first name and county publicly beneath the map. Optional; my pledge counts either way. My email and full name stay private.</span>
+                </label>
+                {form.publishFirstName && <Field label="First name for the public list" error={errors.publicFirstName}><Input name="publicFirstName" autoComplete="given-name" maxLength={60} value={form.publicFirstName} onChange={event => setForm(current => ({ ...current, publicFirstName: event.target.value }))} /></Field>}
+              </div>
+
               <div>
                 <label className="flex items-start gap-3 rounded-xl border border-patriot-border bg-patriot-bgSoft px-4 py-3 text-sm text-patriot-text">
                   <input
                     type="checkbox"
+                    name="agreePrivacyPolicy"
                     checked={form.agreePrivacyPolicy}
                     onChange={(e) => setForm((s) => ({ ...s, agreePrivacyPolicy: e.target.checked }))}
                     className="mt-1 h-4 w-4 accent-patriot-blue"

@@ -76,6 +76,11 @@ export function PrivacyPage() {
                   example hosting, form processing, email, or SMS vendors) solely to perform services on our behalf under
                   confidentiality and data-processing terms consistent with this Policy.
                 </p>
+                <p>
+                  Pledge county totals are public. If you separately opt in when pledging, your chosen first name and
+                  county/state also appear in the public supporter list. Your full name and email are not published.
+                  This choice is optional and does not affect your pledge count. Earlier private pledges are listed only where separate permission has been confirmed. Contact us to request removal of a public name.
+                </p>
                 <p className="font-semibold text-patriot-navy">b) Text messaging opt-in data</p>
                 <p>
                   <strong className="text-patriot-navy">

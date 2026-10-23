@@ -70,7 +70,9 @@ can override it for development. Credentials never go in the frontend.
 - `POST /pledges` accepts name, email, state, countyFips, optional role, privacy
   consent and a honeypot. It returns only `{ "accepted": true }` for both new
   and duplicate valid pledges.
-- There is no public list, lookup or export of personal pledge records.
+- `GET /supporters` pages through explicitly opted-in first names and county IDs.
+  Full names, emails and private profiles have no public lookup/export endpoint.
+  See [public supporter names](public-supporter-names.md) for consent and pagination.
 
 Private records have `pk = PLEDGE#<sha256(normalized email)>`, `sk = PROFILE`.
 The map's aggregate snapshot is `pk = PUBLIC`, `sk = COUNTS`. A DynamoDB

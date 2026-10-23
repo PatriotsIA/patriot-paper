@@ -60,3 +60,7 @@ Current hosting URL: https://main.d2pqbeealr8kyx.amplifyapp.com/
 Custom domain setup for `patriotsforpaper.com` and `www.patriotsforpaper.com` has
 been initiated in Amplify. The remaining GoDaddy DNS entries and verification
 steps are in [docs/domain-setup.md](docs/domain-setup.md).
+
+Public first-name lists beneath the maps use optional, explicit consent for new
+pledges. Existing first names are published only with separately confirmed permission. See
+[public supporter names](docs/public-supporter-names.md) for the API and checks.

@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowUpRight, MapPin, Minus, Plus, RefreshCw, Search } from 
 import { Link } from 'react-router-dom'
 import { counties, countyById, searchCounties, stateByCode, states } from '../../lib/geography'
 import { useHashScroll } from '../../lib/useHashScroll'
+import { SupporterNames } from './SupporterNames'
 import { usePledgeCounts } from '../../lib/usePledgeCounts'
 
 type Shape = { id: string; d: string; center: [number, number]; bounds: [number, number, number, number] }
@@ -49,6 +50,7 @@ export default function PledgeMap() {
   }, [state, mapAttempt])
 
   function changeState(code: string) { setState(code); setSelected(''); setHovered(''); setView(fullView); setLimit(50) }
+  function clearCounty() { setSelected(''); setHovered('') }
   function chooseCounty(id: string) {
     const county = countyById.get(id)
     if (!county) return
@@ -95,7 +97,7 @@ export default function PledgeMap() {
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-patriot-red">Live county totals</p>
           <h2 id="pledge-map-title" className="mt-3 font-display text-4xl font-semibold leading-tight text-patriot-navy sm:text-5xl">Paper ballot supporters. Across America.</h2>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-patriot-muted">Every county starts at zero. Each new pledge adds to its county’s total. Explore a state or find your county. Names and email addresses stay private.</p>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-patriot-muted">Every county starts at zero. Each new pledge adds to its county’s total. Explore a state or find your county. First names appear below only with permission. Full names and emails stay private.</p>
         </div>
         <dl className="pledge-stats" aria-label={stateName ? `${stateName} pledge totals` : 'United States pledge totals'}>
           <div><dt>Pledges{state ? ` · ${state}` : ''}</dt><dd>{total === null ? '—' : format(total)}</dd></div>
@@ -137,7 +139,7 @@ export default function PledgeMap() {
                   setView({ ...start.view, x: Math.max(0, Math.min(1000 - start.view.width, start.view.x - dx)), y: Math.max(0, Math.min(650 - start.view.height, start.view.y - dy)) })
                 }}
                 onPointerUp={(event) => { if (drag.current) { const start = drag.current; ignoreClick.current = true; drag.current = null; event.currentTarget.releasePointerCapture(event.pointerId); if (!start.moved && start.county) chooseCounty(start.county) } }}
-                onPointerCancel={() => { drag.current = null }}>
+                onPointerCancel={() => { drag.current = null }} onClick={event => { if (event.target === event.currentTarget && !ignoreClick.current) clearCounty() }}>
                 {currentShapes?.map((shape) => {
                   const county = countyById.get(shape.id)
                   if (!county) return null
@@ -152,6 +154,7 @@ export default function PledgeMap() {
             </div>
             <div className="county-map-selection" aria-live="polite"><MapPin size={17} /><div>{active ? <><strong>{active.name}, {active.state}</strong><span>{activeCount === null ? 'Total unavailable' : `${format(activeCount)} ${activeCount === 1 ? 'pledge' : 'pledges'}`}</span></> : <><strong>Find your county</strong><span>Tap the map or use the searchable list.</span></>}</div></div>
           </div>
+          <SupporterNames county={selected} onClear={clearCounty} />
           <div className="map-legend"><span><i className="legend-zero" />No pledges</span><span><i className="legend-pledged" />Pledges recorded</span><span>Zoom in for smaller counties</span></div>
         </div>
         <aside className="county-search-panel" aria-label="Search county pledge totals">

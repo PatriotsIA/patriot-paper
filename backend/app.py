@@ -5,6 +5,7 @@ import json
 import os
 import re
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -43,7 +44,15 @@ def validate(data):
         raise ValueError('Please agree to the Privacy Policy and Terms & Conditions.')
     if data.get('role', '') not in ROLES:
         raise ValueError('Please select a valid way to help.')
-    return {'name': name, 'email': email, 'countyFips': county_id, 'county': county['name'], 'state': county['state'], 'role': data.get('role', '')}
+    if not isinstance(data.get('publishFirstName', False), bool):
+        raise ValueError('Please check your public name preference.')
+    first_name = data.get('publicFirstName', '')
+    if not isinstance(first_name, str) or len(first_name) > 60:
+        raise ValueError('Please enter a first name of up to 60 characters.')
+    first_name = first_name.strip()
+    if data.get('publishFirstName') and (not first_name or any(ord(c) < 32 for c in first_name)):
+        raise ValueError('Please enter the first name you want to display publicly.')
+    return {'publishFirstName': data.get('publishFirstName', False), 'publicFirstName': first_name if data.get('publishFirstName') else '', 'name': name, 'email': email, 'countyFips': county_id, 'county': county['name'], 'state': county['state'], 'role': data.get('role', '')}
 
 
 def rate_limit(ip):
@@ -67,7 +76,10 @@ def rate_limit(ip):
 def save_pledge(pledge):
     now = datetime.now(timezone.utc).isoformat()
     digest = hashlib.sha256(pledge['email'].encode()).hexdigest()
-    item = {key: {'S': value} for key, value in pledge.items()}
+    item = {key: {'S': value} for key, value in pledge.items() if key != 'publishFirstName'}
+    item['publishFirstName'] = {'BOOL': pledge['publishFirstName']}
+    if pledge['publishFirstName']:
+        item['publicNameConsentVersion'] = {'S': '2026-10-23'}
     item.update(pk={'S': 'PLEDGE#' + digest}, sk={'S': 'PROFILE'}, createdAt={'S': now}, privacyConsent={'BOOL': True}, consentVersion={'S': '2026-10-19'})
     writes = [
         {'Put': {'TableName': TABLE, 'Item': item, 'ConditionExpression': 'attribute_not_exists(pk)'}},
@@ -76,6 +88,15 @@ def save_pledge(pledge):
             'ExpressionAttributeNames': {'#counts': 'counts', '#county': pledge['countyFips']},
             'ExpressionAttributeValues': {':zero': {'N': '0'}, ':one': {'N': '1'}, ':now': {'S': now}}}},
     ]
+    if pledge['publishFirstName']:
+        public_id = uuid.uuid4().hex
+        item['publicNameId'] = {'S': public_id}
+        item['publicNameSortKey'] = {'S': now + '#' + public_id}
+        for partition in ['SUPPORTERS#ALL', 'SUPPORTERS#COUNTY#' + pledge['countyFips']]:
+            public = {'pk': {'S': partition}, 'sk': {'S': now + '#' + public_id},
+                      'id': {'S': public_id}, 'firstName': {'S': pledge['publicFirstName']},
+                      'countyFips': {'S': pledge['countyFips']}}
+            writes.append({'Put': {'TableName': TABLE, 'Item': public, 'ConditionExpression': 'attribute_not_exists(pk)'}})
     for attempt in range(4):
         try:
             DDB.transact_write_items(TransactItems=writes)
@@ -105,6 +126,42 @@ def get_counts():
     return {'counties': counts, 'states': states, 'total': sum(counts.values()), 'countiesRepresented': len(counts), 'updatedAt': item.get('updatedAt', {}).get('S'), 'asOf': datetime.now(timezone.utc).isoformat()}
 
 
+
+def get_supporters(params):
+    params = params or {}
+    county = params.get('county', '')
+    if county and county not in COUNTIES:
+        raise ValueError('Please select a valid county.')
+    try:
+        limit = int(params.get('limit', '40'))
+        if not 1 <= limit <= 50:
+            raise ValueError()
+    except (ValueError, TypeError):
+        raise ValueError('Please request between 1 and 50 names.') from None
+    partition = 'SUPPORTERS#COUNTY#' + county if county else 'SUPPORTERS#ALL'
+    options = dict(TableName=TABLE, KeyConditionExpression='pk = :pk',
+        ExpressionAttributeValues={':pk': {'S': partition}}, Limit=limit,
+        ScanIndexForward=False, ConsistentRead=True)
+    cursor = params.get('cursor', '')
+    if cursor:
+        try:
+            if not isinstance(cursor, str) or len(cursor) > 160:
+                raise ValueError()
+            key = base64.b64decode(cursor, altchars=b'-_', validate=True).decode('ascii')
+            if not re.fullmatch(r'\d{4}-\d{2}-\d{2}T[0-9:.]+\+00:00#[a-f0-9]{32}', key):
+                raise ValueError()
+        except (ValueError, UnicodeError):
+            raise ValueError('Invalid names cursor.') from None
+        options['ExclusiveStartKey'] = {'pk': {'S': partition}, 'sk': {'S': key}}
+    page = DDB.query(**options)
+    # Public projections contain no full names, email addresses or private record keys.
+    items = [{'id': row['id']['S'], 'firstName': row['firstName']['S'],
+              'countyFips': row['countyFips']['S']} for row in page.get('Items', [])]
+    last = page.get('LastEvaluatedKey')
+    cursor = base64.urlsafe_b64encode(last['sk']['S'].encode()).decode() if last else None
+    return {'items': items, 'nextCursor': cursor}
+
+
 def handler(event, context):
     method = event.get('requestContext', {}).get('http', {}).get('method', '')
     path = event.get('rawPath', '')
@@ -113,6 +170,8 @@ def handler(event, context):
     if origin and origin not in ALLOWED_ORIGINS:
         return response(403, {'message': 'This site is not allowed to submit pledges.'})
     try:
+        if method == 'GET' and path == '/supporters':
+            return response(200, get_supporters(event.get('queryStringParameters')))
         if method == 'GET' and path == '/counts':
             return response(200, get_counts())
         if method != 'POST' or path != '/pledges':

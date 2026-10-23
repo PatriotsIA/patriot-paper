@@ -93,3 +93,91 @@ def test_aggregate_failure_rolls_back_private_pledge(api):
     items=api.DDB.scan(TableName=api.TABLE)['Items']
     assert not any(i['pk']['S'].startswith('PLEDGE#') for i in items)
     assert request(api)[0]==503 # Outages must never pretend the count is zero.
+
+
+def names(api, **params):
+    return request(api, rawPath='/supporters', queryStringParameters=params)
+
+
+def test_private_pledges_never_appear_or_gain_consent_on_repeat(api):
+    assert request(api, pledge())[0] == 200
+    assert names(api)[1] == {'items': [], 'nextCursor': None}
+    assert request(api, pledge(publishFirstName=True, publicFirstName='Test'))[0] == 200
+    assert names(api)[1]['items'] == []
+    assert request(api)[1]['total'] == 1
+
+
+def test_public_names_are_explicit_minimal_atomic_and_deduplicated(api):
+    public = pledge(publishFirstName=True, publicFirstName=' Ana María ')
+    assert request(api, public)[0] == 200
+    assert request(api, {**public, 'countyFips': '48375', 'publicFirstName': 'Changed'})[0] == 200
+    status, page = names(api)
+    assert status == 200 and len(page['items']) == 1
+    row = page['items'][0]
+    assert set(row) == {'id', 'firstName', 'countyFips'}
+    assert row['firstName'] == 'Ana María' and row['countyFips'] == '48381'
+    assert len(row['id']) == 32 and row['id'] != api.hashlib.sha256(public['email'].encode()).hexdigest()
+    assert names(api, county='48381')[1]['items'] == [row]
+    assert names(api, county='48375')[1]['items'] == []
+    assert 'Supporter' not in json.dumps(page) and '@' not in json.dumps(page)
+    assert request(api)[1]['total'] == 1
+
+
+def test_public_names_pagination_and_county_isolation(api):
+    for n in range(7):
+        api.save_pledge(api.validate(pledge(email=f'person{n}@example.invalid', publicFirstName='Same', publishFirstName=True, countyFips='48381' if n % 2 else '48375')))
+    for county, expected in [('', 7), ('48381', 3), ('48375', 4)]:
+        seen = []; cursor = ''; pages = 0
+        while True:
+            status, page = names(api, county=county, limit='2', cursor=cursor)
+            assert status == 200 and len(page['items']) <= 2
+            seen.extend(page['items']); pages += 1
+            cursor = page['nextCursor']
+            if not cursor: break
+            assert pages < 6
+        assert len(seen) == expected and len({row['id'] for row in seen}) == expected
+        assert all(not county or row['countyFips'] == county for row in seen)
+
+
+@pytest.mark.parametrize('params', [{'county':'99999'}, {'limit':'0'}, {'limit':'51'}, {'limit':'oops'}, {'cursor':'%%%invalid'}, {'cursor':'UFJPRklMRQ=='}, {'cursor':'x'*1000}])
+def test_public_query_rejects_invalid_requests(api, params):
+    assert names(api, **params)[0] == 400
+
+
+@pytest.mark.parametrize('fields', [{'publishFirstName':'true'}, {'publishFirstName':True}, {'publishFirstName':True,'publicFirstName':' '}, {'publishFirstName':True,'publicFirstName':'x'*61}, {'publishFirstName':True,'publicFirstName':'A\nB'}])
+def test_public_consent_validation(api, fields):
+    assert request(api, pledge(**fields))[0] == 400
+    assert names(api)[1]['items'] == []
+    assert request(api)[1]['total'] == 0
+
+
+def test_public_rows_roll_back_when_aggregate_fails(api):
+    api.DDB.delete_item(TableName=api.TABLE,Key={'pk':{'S':'PUBLIC'},'sk':{'S':'COUNTS'}})
+    assert request(api, pledge(publishFirstName=True, publicFirstName='Test'))[0] == 503
+    assert names(api)[1]['items'] == []
+    assert names(api, county='48381')[1]['items'] == []
+
+
+def test_legacy_publication_requires_missing_preference_is_idempotent_and_keeps_counts(api):
+    from publish_existing import publish_legacy
+    # Model a profile created before public-name consent existed.
+    api.save_pledge(api.validate(pledge()))
+    digest = api.hashlib.sha256(pledge()['email'].encode()).hexdigest()
+    key = {'pk': {'S': 'PLEDGE#' + digest}, 'sk': {'S': 'PROFILE'}}
+    api.DDB.update_item(TableName=api.TABLE, Key=key, UpdateExpression='REMOVE publishFirstName')
+    api.save_pledge(api.validate(pledge(email='private@example.invalid', publishFirstName=False)))
+    before = api.get_counts()
+    plan = publish_legacy(api.DDB, api.TABLE, api.COUNTIES)
+    assert plan['eligible'] == 1 and plan['published'] == 0
+    assert api.get_supporters({})['items'] == []
+    result = publish_legacy(api.DDB, api.TABLE, api.COUNTIES, apply=True)
+    assert result['published'] == 1 and result['skipped'] == 1
+    rows = api.get_supporters({})['items']
+    assert len(rows) == 1 and rows[0]['firstName'] == 'Test'
+    assert api.get_supporters({'county':'48381'})['items'] == rows
+    assert api.get_counts()['counties'] == before['counties']
+    assert publish_legacy(api.DDB, api.TABLE, api.COUNTIES, apply=True)['published'] == 0
+    assert api.get_supporters({})['items'] == rows
+    item = api.DDB.get_item(TableName=api.TABLE, Key=key)['Item']
+    assert item['publicNameConsentSource']['S'] == 'site-owner-confirmed-existing-signer-permission'
+    assert item['name']['S'] == 'Test Supporter'
