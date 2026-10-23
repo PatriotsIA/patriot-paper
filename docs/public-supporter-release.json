@@ -1,0 +1,20 @@
+{
+  "verifiedAt": "2026-10-23T19:05:22.638125+00:00",
+  "url": "https://www.patriotsforpaper.com",
+  "sourceCommit": "804cda7",
+  "amplifyJob": 10,
+  "deploymentStatus": "SUCCEED",
+  "backendTestsPassed": 34,
+  "legacyNamesPublishedWithOwnerConfirmedPermission": 5,
+  "liveNamesVerified": 5,
+  "checks": [
+    "desktop and mobile infinite scroll with 90 mocked names",
+    "county filter and clear",
+    "empty/error/retry states",
+    "safe text rendering",
+    "optional explicit public-name consent",
+    "mocked form submission; no real test pledges or emails",
+    "read-only live API and browser name/county verification"
+  ],
+  "privateFieldsPublic": false
+}
