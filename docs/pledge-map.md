@@ -43,6 +43,11 @@ search, zoom, pan and reset work without a mapping service or API key. Map code
 and state geometry load on demand. Search ignores accents and supports full
 state names, abbreviations and county identifiers.
 
+On October 23, Puerto Rico's national inset and label were moved left into the
+open space below the Gulf Coast to clear Florida. County identifiers, pledge
+totals and individual state views are unchanged. Desktop and mobile browser
+checks confirmed the separation and working Puerto Rico/Florida drilldowns.
+
 `public/maps/provenance.json` records the source vintage and catalog hash.
 To regenerate, download and unzip both archives into one directory, then run:
 

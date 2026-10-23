@@ -146,7 +146,7 @@ export default function PledgeMap() {
                 })}
                 {!state && geometry.states.map((shape) => <path key={shape.id} d={shape.d} fill="none" stroke="#172354" strokeWidth={.9} vectorEffect="non-scaling-stroke" pointerEvents="none" />)}
                 {state && currentShapes?.filter((shape) => (shape.bounds[2] - shape.bounds[0]) / view.width * 1000 > 21 && (shape.bounds[3] - shape.bounds[1]) / view.width * 1000 > 18).map((shape) => <text key={shape.id} x={shape.center[0]} y={shape.center[1]} textAnchor="middle" dominantBaseline="central" fontSize={Math.max(3, 11 * view.width / 1000)} fontWeight="700" fill={data && data.counties[shape.id] ? '#fff' : '#172354'} pointerEvents="none">{data ? format(data.counties[shape.id] ?? 0) : '—'}</text>)}
-                {!state && <g className="map-inset-labels" pointerEvents="none"><text x="150" y="635">ALASKA</text><text x="365" y="635">HAWAII</text><text x="875" y="645">PUERTO RICO</text></g>}
+                {!state && <g className="map-inset-labels" pointerEvents="none"><text x="150" y="635">ALASKA</text><text x="365" y="635">HAWAII</text><text x="690" y="635">PUERTO RICO</text></g>}
               </svg>}
               <div className="map-zoom-controls"><button aria-label="Zoom in on county map" onClick={() => zoom(.7)} disabled={view.width <= 180}><Plus size={18} /></button><button aria-label="Zoom out on county map" onClick={() => zoom(1 / .7)} disabled={view.width === 1000}><Minus size={18} /></button><button onClick={() => setView(fullView)} className="map-reset">Reset</button></div>
             </div>

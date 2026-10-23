@@ -13,7 +13,8 @@ const compact=feature=>({id:feature.properties.GEOID,state:feature.properties.ST
 const catalog=counties.features.map(compact).sort((a,b)=>a.id.localeCompare(b.id));
 const stateList=states.features.filter(s=>catalog.some(c=>c.state===s.properties.STUSPS)).map(s=>({id:s.properties.GEOID,code:s.properties.STUSPS,name:s.properties.NAME})).sort((a,b)=>a.name.localeCompare(b.name));
 const usa=geoAlbersUsa().fitExtent([[20,15],[980,610]], {type:'FeatureCollection',features:counties.features.filter(c=>c.properties.STUSPS!=='PR')});
-const pr=geoMercator().fitExtent([[790,560],[970,625]],{type:'FeatureCollection',features:counties.features.filter(c=>c.properties.STUSPS==='PR')});
+// Keep Puerto Rico in the open Gulf inset, clear of Florida and Texas.
+const pr=geoMercator().fitExtent([[600,560],[780,625]],{type:'FeatureCollection',features:counties.features.filter(c=>c.properties.STUSPS==='PR')});
 const shape=(feature,projection)=>{
  const path=geoPath(projection).digits(2),d=path(feature);
  if(!d) throw new Error(`Empty geometry: ${feature.properties.GEOID}`);
